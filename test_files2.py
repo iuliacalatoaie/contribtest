@@ -1,3 +1,11 @@
+# tests if 2 files are equal
+# compre the sizes first and then
+# compare files line by line
+#
+# run:
+#   ./test_files1 file1 file1
+# prints True if equals, False otherwise
+
 #!/usr/bin/env python3
 
 import sys
@@ -21,9 +29,6 @@ def compare_lines(f1, f2):
 		count += 1
 
 	return True
-
-	
-
 
 def main():
 	size_1 = Path(sys.argv[1]).stat().st_size
