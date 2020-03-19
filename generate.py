@@ -3,8 +3,14 @@
 #   ./generate.py test/source output
 # the generated `output` should be the same as `test/expected_output`
 
-import os
+#!/usr/bin/env python3
+
+# need json and sys too
+import json
 import logging
+import os
+import sys
+
 import jinja2
 
 log = logging.getLogger(__name__)
@@ -15,10 +21,12 @@ def list_files(folder_path):
         base, ext = os.path.splitext(name)
         if ext != '.rst':
             continue
-        yield os.path.join(folder_path, name)
+        # get the name of the file too
+        yield os.path.join(folder_path, name), os.path.basename(base)
 
 def read_file(file_path):
-    with open(file_path, 'rb') as f:
+    # see the file as utf8 coded, not binary
+    with open(file_path, 'r') as f:
         raw_metadata = ""
         for line in f:
             if line.strip() == '---':
@@ -31,18 +39,27 @@ def read_file(file_path):
 
 def write_output(name, html):
     # TODO should not use sys.argv here, it breaks encapsulation
-    with open(os.path.join(sys.argv[2], name+'.html')) as f:
+    # add path and create directory if not exists 
+    current = os.path.join('test', sys.argv[2])
+    if not os.path.exists(current):
+        os.makedirs(current)
+    # join name with path
+    with open(os.path.join(current, name+'.html'), 'w') as f:
         f.write(html)
 
 def generate_site(folder_path):
     log.info("Generating site from %r", folder_path)
-    jinja_env = jinja2.Environment(loader=FileSystemLoader(folder_path + 'layout'))
-    for file_path in list_files(folder_path):
+    print("folder_path: " + folder_path)
+    # FileSystemLoader its from jinja2
+    jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(folder_path + '/layout'))
+    for file_path, name in list_files(folder_path):
         metadata, content = read_file(file_path)
-        template_name = metadata['template']
+        # look for layout as template
+        template_name = metadata['layout']
         template = jinja_env.get_template(template_name)
         data = dict(metadata, content=content)
-        html = template(**data)
+        # render data
+        html = template.render(**data)
         write_output(name, html)
         log.info("Writing %r with template %r", name, template_name)
 
