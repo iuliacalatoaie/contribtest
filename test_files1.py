@@ -1,10 +1,16 @@
+# tests if 2 files are equal
+# compare files byte by byte
+#
+# run:
+#   ./test_files1 file1 file1
+# prints True if equals, False otherwise
+
 #!/usr/bin/env python3
 
 import filecmp
 import sys
 
-# compare files byte by byte
-# prints True if equals, False otherwise
+
 def main() :
 	# print confirmation
 	print('Comparing files ')
